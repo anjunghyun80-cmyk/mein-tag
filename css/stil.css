@@ -292,6 +292,30 @@ p { margin: 0 0 8px; }
   margin-top: 6px;
   font-variant-numeric: tabular-nums;
 }
+.kopf-unter:empty { display: none; }
+
+/* Die Uhr oben in jedem Tab - Stunden und Minuten gross, Sekunden klein. */
+.kopf-uhr {
+  margin-left: auto;
+  align-self: center;
+  display: inline-flex;
+  align-items: baseline;
+  font-family: var(--schrift-anzeige);
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .01em;
+  white-space: nowrap;
+}
+.kopf-uhr small {
+  font-family: var(--schrift-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-3);
+  margin-left: 1px;
+  min-width: 3ch;
+}
 
 .rund {
   width: var(--tipp);
@@ -455,6 +479,36 @@ p { margin: 0 0 8px; }
   font-variant-numeric: tabular-nums;
 }
 .jetzt-notiz { color: var(--text-2); font-size: 13.5px; margin-top: 4px; }
+
+/* Der automatische Timer des laufenden Blocks */
+.jetzt-timer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 6px 6px 6px 12px;
+  min-height: 44px;
+  background: var(--flaeche-2);
+  border-radius: var(--r);
+  font-size: 14px;
+  color: var(--text-2);
+}
+.jetzt-timer svg { flex: none; color: var(--akzent-text); }
+.jetzt-timer b { color: var(--text); font-variant-numeric: tabular-nums; }
+.jetzt-timer-text { flex: 1; min-width: 0; }
+.jetzt-timer.aus svg { color: var(--text-3); }
+.jetzt-timer-knopf {
+  flex: none;
+  min-width: 52px;
+  min-height: 34px;
+  padding: 4px 10px;
+  border: 1px solid var(--linie-stark);
+  border-radius: var(--r-klein);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+.ton-hinweis { font-size: 12.5px; color: var(--text-3); margin-top: 6px; }
 
 .jetzt-balken {
   height: 4px;
@@ -1548,6 +1602,81 @@ p { margin: 0 0 8px; }
   font-variant-numeric: tabular-nums;
 }
 .feier-zahl span { font-size: 12px; color: var(--text-2); }
+
+/* =========================================================================
+   Der Timer klingelt - wie beim iPhone-Timer ueber den ganzen Bildschirm
+   ========================================================================= */
+
+.wecker {
+  position: fixed;
+  inset: 0;
+  z-index: 85;
+  display: grid;
+  place-items: center;
+  padding: calc(var(--oben) + 20px) calc(var(--rechts) + 20px) calc(var(--unten) + 20px) calc(var(--links) + 20px);
+  background: rgba(2, 4, 8, .82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: aufblenden .2s ease;
+}
+.wecker-karte {
+  width: 100%;
+  max-width: 360px;
+  background: var(--flaeche);
+  border: 1px solid var(--akzent);
+  border-top-width: 5px;
+  border-radius: var(--r-gross);
+  padding: 22px 20px 20px;
+  text-align: center;
+  display: grid;
+  gap: 10px;
+  animation: feier-auf .4s cubic-bezier(.22, 1.2, .36, 1);
+}
+.wecker-marke {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  font-family: var(--schrift-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--akzent-text);
+}
+.wecker-marke svg { animation: klingeln 1.3s ease-in-out infinite; transform-origin: 50% 10%; }
+@keyframes klingeln {
+  0%, 40%, 100% { transform: rotate(0); }
+  8%, 24% { transform: rotate(14deg); }
+  16%, 32% { transform: rotate(-14deg); }
+}
+.wecker-rest {
+  font-family: var(--schrift-anzeige);
+  font-size: 84px;
+  font-weight: 900;
+  line-height: .9;
+  font-variant-numeric: tabular-nums;
+}
+.wecker-titel {
+  font-family: var(--schrift-anzeige);
+  font-size: 32px;
+  font-weight: 800;
+  line-height: .95;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+.wecker-text { margin: 0; color: var(--text-2); font-size: 15px; }
+.wecker-naechstes {
+  display: grid;
+  gap: 4px;
+  background: var(--flaeche-2);
+  border-radius: var(--r);
+  padding: 10px 12px;
+  text-align: left;
+}
+.wecker-naechstes b { font-size: 16px; }
+.wecker-knoepfe { display: grid; gap: 8px; margin-top: 4px; }
+.wecker-hinweis { margin: 0; font-size: 13px; color: var(--text-3); }
 
 /* Konfetti - kleine Rechtecke, die herunterfallen. */
 .konfetti {

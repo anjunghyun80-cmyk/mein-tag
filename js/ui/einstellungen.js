@@ -11,6 +11,13 @@ import {
   setzeAkzent,
 } from './thema.js';
 import { AKZENT_VORLAGEN, schriftAuf } from '../logik/farbe.js';
+import { VORLAUF_WAHL } from '../logik/timer.js';
+import {
+  tonFreischalten,
+  starteKlingeln,
+  setzeWachBleiben,
+  wachBleibenMoeglich,
+} from './wecker.js';
 
 import { erzeugeIcs, icsDateiname, erinnerungsBloecke, KALENDER_MARKE } from '../logik/ics.js';
 import { erzeugeBackup, backupDateiname, leseBackup } from '../logik/backup.js';
@@ -29,6 +36,7 @@ export function oeffneEinstellungen(app) {
 
     form.append(
       baueAussehen(app),
+      baueTimer(app),
       baueErinnerungen(app),
       baueStreak(app),
       baueBackup(app, schliessen),
@@ -165,6 +173,96 @@ function baueFarbwahl() {
       text: 'Jede Farbe geht. Ist sie zu hell oder zu dunkel, passt die App sie so an, dass alles gut lesbar bleibt.',
     }),
   ]);
+}
+
+// ---------------------------------------------------------------------------
+// Timer vor Blockende
+// ---------------------------------------------------------------------------
+
+function baueTimer(app) {
+  const e = app.zustand.einstellungen;
+  const karte = el('section', { class: 'karte' }, [
+    el('div', { class: 'karte-kopf' }, [el('span', { class: 'karte-titel', text: 'Timer' })]),
+  ]);
+
+  karte.append(
+    el('div', { class: 'schalterzeile' }, [
+      el('span', { class: 'schalter-text' }, [
+        el('div', { class: 'schalter-name', text: 'Klingeln vor Blockende' }),
+        el('div', {
+          class: 'schalter-hilfe',
+          text: 'Für jeden Block stellt sich automatisch ein Timer. Er klingelt kurz vor dem Ende, damit du Zeit hast, das Nächste vorzubereiten. Beim Schlafen nie.',
+        }),
+      ]),
+      baueSchalter(e.timerAn, (an) => app.aktualisiere(setzeEinstellung(app.zustand, 'timerAn', an))),
+    ]),
+  );
+
+  // Wie viele Minuten vorher?
+  const kaesten = el('div', { class: 'kaesten' });
+  for (const minuten of VORLAUF_WAHL) {
+    const knopf = el('button', {
+      text: `${minuten} Min`,
+      'aria-pressed': minuten === e.timerVorlauf ? 'true' : 'false',
+      onclick: () => {
+        for (const k of kaesten.children) k.setAttribute('aria-pressed', 'false');
+        knopf.setAttribute('aria-pressed', 'true');
+        app.aktualisiere(setzeEinstellung(app.zustand, 'timerVorlauf', minuten));
+        app.toast(`Klingelt ${minuten} ${minuten === 1 ? 'Minute' : 'Minuten'} vor dem Ende`);
+      },
+    });
+    kaesten.append(knopf);
+  }
+  karte.append(
+    el('div', { class: 'feld', style: { marginTop: '12px' } }, [
+      el('label', { text: 'Wie lange vor dem Ende?' }),
+      kaesten,
+    ]),
+  );
+
+  if (wachBleibenMoeglich()) {
+    karte.append(
+      el('div', { class: 'schalterzeile' }, [
+        el('span', { class: 'schalter-text' }, [
+          el('div', { class: 'schalter-name', text: 'Bildschirm anlassen' }),
+          el('div', {
+            class: 'schalter-hilfe',
+            text: 'Solange die App offen ist, sperrt sich das iPhone nicht von selbst. Nur dann kann der Timer klingeln. Braucht mehr Akku.',
+          }),
+        ]),
+        baueSchalter(e.wachBleiben, (an) => {
+          app.aktualisiere(setzeEinstellung(app.zustand, 'wachBleiben', an), { rendern: false });
+          setzeWachBleiben(an);
+        }),
+      ]),
+    );
+  }
+
+  karte.append(
+    el(
+      'button',
+      {
+        class: 'knopf',
+        style: { marginTop: '12px' },
+        onclick: () => {
+          tonFreischalten();
+          starteKlingeln(3);
+          app.toast('So klingt der Timer');
+        },
+      },
+      [icon('glocke', 18), el('span', { text: 'Ton testen' })],
+    ),
+    el('div', { class: 'hinweis ruhig', style: { marginTop: '14px', marginBottom: '0' } }, [
+      icon('info', 17),
+      el('div', {
+        text:
+          'Klingeln kann die App nur, solange sie offen ist und das iPhone nicht gesperrt ist – das geht bei keiner Web-App anders. ' +
+          'Für die Zeit, in der die App zu ist, gibt es unten die Erinnerungen im Kalender.',
+      }),
+    ]),
+  );
+
+  return karte;
 }
 
 // ---------------------------------------------------------------------------

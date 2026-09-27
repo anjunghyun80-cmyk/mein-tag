@@ -30,6 +30,12 @@ export const STANDARD_EINSTELLUNGEN = {
   vorlaufMinuten: 5,
   /** Banner "Jetzt: ..." anzeigen, solange die App offen ist. */
   bannerAn: true,
+  /** Klingelt vor dem Ende des laufenden Blocks. */
+  timerAn: true,
+  /** So viele Minuten vor dem Ende klingelt es. */
+  timerVorlauf: 2,
+  /** Bildschirm anlassen, solange die App offen ist - sonst kann nichts klingeln. */
+  wachBleiben: false,
 };
 
 /** Frischer Zustand mit dem Standardplan. */

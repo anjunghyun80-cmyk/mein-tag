@@ -26,6 +26,8 @@ import { rendereStatistik } from './ui/statistik.js';
 import { renderePlan } from './ui/planEditor.js';
 import { rendereGlowup } from './ui/glowup.js';
 import { oeffneEinstellungen } from './ui/einstellungen.js';
+import { beobachteTippen, pruefeWecker, setzeWachBleiben, tonBereit } from './ui/wecker.js';
+import { countdownText } from './logik/timer.js';
 
 import { MAX_ZURUECK, MAX_VOR } from './konfiguration.js';
 
@@ -227,7 +229,41 @@ app.rendere = () => {
   else if (app.tab === 'statistik') inhalt.append(rendereStatistik(app));
   else if (app.tab === 'plan') inhalt.append(renderePlan(app));
   else if (app.tab === 'glowup') inhalt.append(rendereGlowup(app));
+
+  // Die Uhr steht in jedem Tab oben, direkt neben dem Einstellungs-Knopf.
+  inhalt.querySelector('.kopf > .rund')?.before(baueUhr());
+  sekundentakt();
 };
+
+// ---------------------------------------------------------------------------
+// Uhr und Countdowns - jede Sekunde, ohne den Bildschirm neu zu zeichnen
+// ---------------------------------------------------------------------------
+
+function baueUhr() {
+  return el('span', { class: 'kopf-uhr', dataset: { uhr: '' }, role: 'timer', 'aria-label': 'Uhrzeit' }, [
+    el('span', {}),
+    el('small', {}),
+  ]);
+}
+
+function sekundentakt() {
+  const jetzt = app.jetzt();
+  const zwei = (n) => String(n).padStart(2, '0');
+
+  for (const uhr of document.querySelectorAll('[data-uhr]')) {
+    uhr.firstChild.textContent = `${zwei(jetzt.getHours())}:${zwei(jetzt.getMinutes())}`;
+    uhr.lastChild.textContent = `:${zwei(jetzt.getSeconds())}`;
+  }
+  // Countdowns tragen ihren Zielzeitpunkt (ms) im Attribut data-countdown.
+  for (const feld of document.querySelectorAll('[data-countdown]')) {
+    feld.textContent = countdownText(Number(feld.dataset.countdown) - jetzt.getTime());
+  }
+  // Der Hinweis "einmal tippen, damit Ton an ist" verschwindet von selbst.
+  for (const hinweis of document.querySelectorAll('[data-ton-hinweis]')) {
+    hinweis.hidden = tonBereit();
+  }
+  pruefeWecker(app, jetzt);
+}
 
 /** Wechselt den Tab. */
 app.geheZu = (tab) => {
@@ -357,6 +393,9 @@ function start() {
   pruefeBanner(true);
   app.rendere();
   starteTakt();
+  setInterval(sekundentakt, 1000);
+  beobachteTippen();
+  if (app.zustand.einstellungen.wachBleiben) setzeWachBleiben(true);
   beobachteFremdesAbzeichen();
 
   // Kommt die App aus dem Hintergrund zurueck: alles auffrischen.
@@ -365,6 +404,8 @@ function start() {
       app.tagOeffnen(app.heute());
       pruefeBanner(true);
       app.rendere();
+      // Das iPhone gibt "Bildschirm anlassen" im Hintergrund frei - neu anfordern.
+      if (app.zustand.einstellungen.wachBleiben) setzeWachBleiben(true);
     }
   });
 

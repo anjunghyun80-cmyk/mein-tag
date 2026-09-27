@@ -12,7 +12,7 @@
 // Start, dass es eine neue Fassung gibt, laedt sie im Hintergrund und die App
 // laedt sich einmal neu (siehe starteServiceWorker in js/app.js).
 
-const CACHE_NAME = 'mein-tag-454b4c54e9';
+const CACHE_NAME = 'mein-tag-20bf8250fe';
 
 const DATEIEN = [
   './',
@@ -42,6 +42,7 @@ const DATEIEN = [
   './js/logik/workout.js',
   './js/logik/farbe.js',
   './js/logik/glowup.js',
+  './js/logik/timer.js',
 
   './js/ui/dom.js',
   './js/ui/icons.js',
@@ -53,6 +54,7 @@ const DATEIEN = [
   './js/ui/statistik.js',
   './js/ui/planEditor.js',
   './js/ui/glowup.js',
+  './js/ui/wecker.js',
   './js/ui/einstellungen.js',
 
   './icons/icon.svg',

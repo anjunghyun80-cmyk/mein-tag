@@ -33,6 +33,8 @@ Unter *Einstellungen → Aussehen* kann ich auf Hell oder „System" umstellen u
 | Bereich | Was geht |
 |---|---|
 | **Heute** | Fortschritt als Startnummer mit Balken, laufender Block groß, eigene Aufgaben anlegen/abhaken/löschen, 3 Tagesziele, kompletter Tagesablauf. Mit den Pfeilen 7 Tage zurück und vor. |
+| **Uhr** | Oben in jedem Tab läuft die aktuelle Uhrzeit mit, mit Sekunden. |
+| **Timer** | Für den laufenden Block stellt sich automatisch ein Timer. Er klingelt 2 Minuten vor dem Ende (einstellbar: 1, 2, 3 oder 5 Min). Dazu kommt eine Nachricht über den ganzen Bildschirm mit „Stopp" und „Erledigt – abhaken". Beim Schlafen klingelt nichts. |
 | **Aufgaben** | Eigene To-dos pro Tag: unten eintippen, mit ⊕ oder Enter anlegen. Antippen des Kästchens hakt ab, der Papierkorb löscht. Offene Aufgaben von gestern lassen sich holen, erledigte auf einmal aufräumen. |
 | **Feier** | Sind alle Blöcke, Aufgaben und Ziele eines Tages erledigt, kommen Konfetti und ein Spruch – einmal pro Tag. |
 | **Woche** | Mo–So als Karten zum Durchwischen, mit Prozentbalken pro Tag. |
@@ -40,6 +42,19 @@ Unter *Einstellungen → Aussehen* kann ich auf Hell oder „System" umstellen u
 | **Zahlen** | Tages-Streak, Gewohnheits-Streaks, Quoten nach Kategorie und Wochentag, Heatmap über 12 Wochen. |
 | **Plan** | Wochenplan bearbeiten: Blöcke anlegen, ändern, löschen, auf andere Tage kopieren, zurücksetzen. |
 | **Glow-up** | King Henrys 90-Tage-Lock-in Woche für Woche: Thema, Zahlen, seine Aufgabe und eine realistische Version für mich. Neue Wochen (6–13) füge ich selbst hinzu – YouTube-Link und Transkript einfügen, die App schlägt Zahlen und Thema vor. |
+
+### Der Timer vor Blockende
+
+- Im „Jetzt"-Kasten steht, wann der Timer klingelt, und ein Countdown.
+  Mit **Aus** schaltest du ihn nur für diesen einen Block ab.
+- Einstellungen → **Timer**: an/aus, Vorlauf (1–5 Minuten), **Bildschirm anlassen**
+  und **Ton testen**.
+- Das iPhone erlaubt Ton erst, nachdem man einmal in die App getippt hat.
+  Solange das noch fehlt, steht ein kleiner Hinweis unter dem Timer.
+- **Grenze jeder Web-App:** Klingeln geht nur, solange die App offen ist und das
+  iPhone nicht gesperrt ist. Öffnest du die App später wieder, während der Block
+  noch läuft, klingelt sie sofort. Für die Zeit, in der die App zu ist, gibt es
+  die Kalender-Erinnerungen (Abschnitt 5).
 
 ### Eine neue Glow-up-Woche eintragen
 
@@ -108,7 +123,7 @@ Oder kürzer:
 npm test
 ```
 
-Erwartete Ausgabe am Ende: `pass 132`, `fail 0`.
+Erwartete Ausgabe am Ende: `pass 139`, `fail 0`.
 
 Was getestet wird:
 
@@ -126,6 +141,7 @@ Was getestet wird:
 | `test/workout.test.js` | Trainingsplan: anlegen, prüfen, abhaken, Serie, Wochenbilanz |
 | `test/farbe.test.js` | Akzentfarbe: Kontrast, Anpassen zu heller/dunkler Farben, jede Vorlage lesbar |
 | `test/glowup.test.js` | Glow-up-Wochen anlegen/löschen, YouTube-Links, Transkript auswerten |
+| `test/timer.test.js` | Timer: Klingelzeit, kurze Blöcke, Schlafen, nur einmal klingeln, Countdown |
 
 ---
 
@@ -297,6 +313,7 @@ mein-tag/
 │   │   ├── backup.js         Export/Import
 │   │   ├── farbe.js          aus EINER Akzentfarbe alle lesbaren Farbtöne rechnen
 │   │   ├── glowup.js         Glow-up-Wochen, YouTube-Links, Transkript auswerten
+│   │   ├── timer.js          wann der Timer des laufenden Blocks klingelt
 │   │   └── zustand.js        alles, was gespeichert wird
 │   │
 │   └── ui/                   ← alles, was Elemente auf den Bildschirm bringt
@@ -310,6 +327,7 @@ mein-tag/
 │       ├── statistik.js      Statistik-Bildschirm
 │       ├── planEditor.js     Plan bearbeiten
 │       ├── glowup.js         Glow-up-Bildschirm und „Woche hinzufügen"
+│       ├── wecker.js         Weckton, Vollbild-Nachricht, Bildschirm anlassen
 │       └── einstellungen.js  Aussehen, Kalender-Export, Backup
 │
 ├── icons/                    App-Icons (mit werkzeuge/icon-erzeugen.mjs gebaut)

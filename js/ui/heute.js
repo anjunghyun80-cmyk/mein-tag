@@ -14,6 +14,8 @@
 import { el, leere, wenigerBewegung } from './dom.js';
 import { icon } from './icons.js';
 import { zeigeFeier } from './feier.js';
+import { aktuellerTimer, istStumm, schalteStumm, tonBereit } from './wecker.js';
+import { countdownText, uhrzeitText } from '../logik/timer.js';
 
 import {
   zuMinuten,
@@ -632,9 +634,8 @@ function tagName(versatz) {
 }
 
 function kopfUnterzeile(app, iso, istHeute) {
-  if (!istHeute) return formatiereDatumLang(iso);
-  const uhr = app.jetzt();
-  return `${String(uhr.getHours()).padStart(2, '0')}:${String(uhr.getMinutes()).padStart(2, '0')} Uhr`;
+  // Heute steht die Uhrzeit schon oben rechts (live), das Datum gleich darunter.
+  return istHeute ? '' : formatiereDatumLang(iso);
 }
 
 function zieleZaehler(app, iso) {
@@ -733,6 +734,7 @@ function baueJetztKarte(app, beiAenderung) {
       text: `${zuText(start)}–${zuText(ende)} · noch ${formatiereDauer(rest)}`,
     }),
     aktuell.notiz ? el('div', { class: 'jetzt-notiz', text: aktuell.notiz }) : null,
+    baueTimerZeile(app, aktuell, beiAenderung),
     el('div', { class: 'jetzt-balken' }, [el('i', { style: { width: `${anteil}%` } })]),
   ]);
 
@@ -775,6 +777,54 @@ function baueJetztKarte(app, beiAenderung) {
   }
 
   return karte;
+}
+
+/**
+ * Der automatische Timer des laufenden Blocks: wann er klingelt und ein
+ * Countdown, der jede Sekunde weiterlaeuft (siehe sekundentakt in app.js).
+ * Mit "Aus" schaltet man ihn nur fuer diesen einen Block ab.
+ */
+function baueTimerZeile(app, aktuell, beiAenderung) {
+  const timer = aktuellerTimer(app);
+  if (!timer || timer.block.id !== aktuell.id) return null;
+
+  const aus = istStumm(timer.schluessel);
+  const vorbei = app.jetzt().getTime() >= timer.klingelnUm;
+
+  let text;
+  if (aus) {
+    text = [el('span', { text: 'Timer für diesen Block aus' })];
+  } else if (vorbei) {
+    text = [
+      el('span', { text: 'Gleich vorbei · noch ' }),
+      el('b', { dataset: { countdown: String(timer.endeUm) }, text: countdownText(timer.endeUm - Date.now()) }),
+    ];
+  } else {
+    text = [
+      el('span', { text: 'Klingelt ' }),
+      el('b', { text: uhrzeitText(timer.klingelnUm) }),
+      el('span', { text: ' · in ' }),
+      el('b', { dataset: { countdown: String(timer.klingelnUm) }, text: countdownText(timer.klingelnUm - Date.now()) }),
+    ];
+  }
+
+  return el('div', {}, [
+    el('div', { class: `jetzt-timer${aus ? ' aus' : ''}` }, [
+      icon('glocke', 16),
+      el('span', { class: 'jetzt-timer-text' }, text),
+      vorbei && !aus
+        ? null
+        : el('button', {
+            class: 'jetzt-timer-knopf',
+            'aria-label': aus ? 'Timer für diesen Block einschalten' : 'Timer für diesen Block ausschalten',
+            text: aus ? 'An' : 'Aus',
+            onclick: () => { schalteStumm(timer.schluessel); beiAenderung(); },
+          }),
+    ]),
+    aus || tonBereit()
+      ? null
+      : el('div', { class: 'ton-hinweis', dataset: { tonHinweis: '' }, text: 'Tippe einmal irgendwo hin, damit der Timer klingeln darf.' }),
+  ]);
 }
 
 /** Eine Zeile der Zeitleiste. */
