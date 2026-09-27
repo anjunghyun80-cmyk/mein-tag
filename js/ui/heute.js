@@ -707,7 +707,7 @@ function baueJetztKarte(app, beiAenderung) {
 
   if (!aktuell) {
     return el('section', { class: 'jetzt' }, [
-      el('div', { class: 'jetzt-marke' }, [el('i', { class: 'jetzt-punkt' }), 'Jetzt']),
+      el('div', { class: 'jetzt-marke', text: 'Jetzt' }),
       el('div', { class: 'jetzt-titel', text: 'Nichts geplant' }),
       naechster
         ? el('div', { class: 'jetzt-naechstes' }, [
@@ -727,7 +727,7 @@ function baueJetztKarte(app, beiAenderung) {
   const fertig = istErledigt(app.zustand, aktuellTag, aktuell.id);
 
   const karte = el('section', { class: 'jetzt' }, [
-    el('div', { class: 'jetzt-marke' }, [el('i', { class: 'jetzt-punkt' }), 'Jetzt']),
+    el('div', { class: 'jetzt-marke', text: 'Jetzt' }),
     el('h2', { class: 'jetzt-titel', text: aktuell.titel }),
     el('div', {
       class: 'jetzt-zeit',

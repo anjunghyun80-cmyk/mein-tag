@@ -451,16 +451,6 @@ p { margin: 0 0 8px; }
   gap: 7px;
   color: var(--akzent-text);
 }
-.jetzt-punkt {
-  width: 7px;
-  height: 7px;
-  background: var(--akzent);
-  animation: pulsieren 2.4s ease-in-out infinite;
-}
-@keyframes pulsieren {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: .35; transform: scale(.82); }
-}
 
 .jetzt-titel {
   font-family: var(--schrift-anzeige);

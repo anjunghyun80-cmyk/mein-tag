@@ -12,7 +12,7 @@
 // Start, dass es eine neue Fassung gibt, laedt sie im Hintergrund und die App
 // laedt sich einmal neu (siehe starteServiceWorker in js/app.js).
 
-const CACHE_NAME = 'mein-tag-20bf8250fe';
+const CACHE_NAME = 'mein-tag-e31943e560';
 
 const DATEIEN = [
   './',
