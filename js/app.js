@@ -370,14 +370,68 @@ function start() {
 
   bitteUmDauerhaftenSpeicher();
 
-  // Service Worker fuer den Offline-Betrieb.
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch((fehler) => {
-        console.warn('Service Worker liess sich nicht anmelden:', fehler);
+  // Nach einem Update einmal kurz Bescheid sagen.
+  try {
+    if (sessionStorage.getItem(UPDATE_MERKER)) {
+      sessionStorage.removeItem(UPDATE_MERKER);
+      app.toast('App aktualisiert');
+    }
+  } catch { /* privater Modus - dann eben ohne Hinweis */ }
+
+  starteServiceWorker();
+}
+
+// ---------------------------------------------------------------------------
+// Service Worker: offline arbeiten und Updates bekommen
+// ---------------------------------------------------------------------------
+
+const UPDATE_MERKER = 'mein-tag/aktualisiert';
+
+/**
+ * Meldet den Service Worker an. Wird eine neue Fassung der App hochgeladen,
+ * installiert sich im Hintergrund ein neuer Service Worker (sw.js hat dann
+ * eine neue Versionsnummer). Sobald er uebernimmt, laden wir die App einmal
+ * neu - so ist das Update sofort zu sehen, ohne dass man etwas tun muss.
+ * Die Daten bleiben dabei unberuehrt, sie liegen im localStorage.
+ */
+function starteServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+
+  // Gab es beim Start schon einen Service Worker, ist ein Wechsel ein Update.
+  // Beim allerersten Start gibt es nichts neu zu laden.
+  const hatteSchonEinen = Boolean(navigator.serviceWorker.controller);
+  let wirdNeuGeladen = false;
+
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hatteSchonEinen || wirdNeuGeladen) return;
+    wirdNeuGeladen = true;
+    ladeNeuWennRuhig();
+  });
+
+  window.addEventListener('load', async () => {
+    try {
+      const anmeldung = await navigator.serviceWorker.register('sw.js');
+      // Kommt die App aus dem Hintergrund zurueck, kurz nach Updates schauen.
+      // Auf dem iPhone bleibt eine Web-App oft tagelang im Speicher.
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') anmeldung.update().catch(() => {});
       });
-    });
+    } catch (fehler) {
+      console.warn('Service Worker liess sich nicht anmelden:', fehler);
+    }
+  });
+}
+
+/** Laedt neu - aber nie mitten im Tippen oder bei offenem Dialog. */
+function ladeNeuWennRuhig() {
+  const aktiv = document.activeElement;
+  const tippt = aktiv && (aktiv.tagName === 'INPUT' || aktiv.tagName === 'TEXTAREA');
+  if (tippt || !id('blende').hidden) {
+    setTimeout(ladeNeuWennRuhig, 3000);
+    return;
   }
+  try { sessionStorage.setItem(UPDATE_MERKER, '1'); } catch { /* egal */ }
+  window.location.reload();
 }
 
 start();

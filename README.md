@@ -167,15 +167,26 @@ sind kostenlos und liefern HTTPS automatisch.
 
 Ohne Konto ist der Link nur vorläufig. Mit einem kostenlosen Konto bleibt er dauerhaft.
 
-### Nach einem Update
+### Updates
 
-Der Service Worker liefert die App aus dem Zwischenspeicher und holt neue
-Dateien im Hintergrund nach. Nach einem Update siehst du die neue Fassung also
-**beim übernächsten Start**. Willst du das sofort, erhöhe in `sw.js` oben die Zeile:
+Die App liegt auf GitHub Pages unter
+**https://anjunghyun80-cmyk.github.io/mein-tag/**.
+Eine neue Fassung lädst du mit einem einzigen Befehl hoch (die GitHub CLI muss
+angemeldet sein, siehe `gh auth login`):
 
-```js
-const CACHE_NAME = 'mein-tag-v2';   // -> 'mein-tag-v3'
+```bash
+node werkzeuge/github-hochladen.mjs
 ```
+
+Das Skript gibt `sw.js` automatisch eine neue Versionsnummer, lädt alle Dateien
+in einem Commit hoch und bringt den Ordner `zum-hochladen` auf denselben Stand.
+
+**Auf dem iPhone musst du nichts tun** – kein neuer QR-Code, kein neues
+Installieren. Beim nächsten Öffnen (mit Internet) merkt die App, dass es eine
+neue Fassung gibt, lädt sie im Hintergrund und startet sich einmal kurz neu.
+Dann erscheint „App aktualisiert". Deine Häkchen, Aufgaben und Ziele bleiben,
+weil die Adresse gleich bleibt. Nie neu geladen wird, während du tippst oder
+ein Dialog offen ist.
 
 ---
 

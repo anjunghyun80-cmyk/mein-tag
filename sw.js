@@ -1,4 +1,4 @@
-﻿// Service Worker - dafuer da, dass die App auch ohne Internet laeuft.
+// Service Worker - dafuer da, dass die App auch ohne Internet laeuft.
 //
 // Idee: Beim Installieren legen wir alle Dateien in einen Cache. Danach
 // antworten wir sofort aus dem Cache - und holen die Datei gleichzeitig im
@@ -6,10 +6,13 @@
 // Dieses Vorgehen heisst "stale while revalidate": immer schnell, nie
 // dauerhaft veraltet.
 //
-// Tipp: Wenn du die App aenderst, erhoehe CACHE_NAME. Dann werden die alten
-// Dateien sofort weggeworfen statt erst beim naechsten Start.
+// Updates: CACHE_NAME ist die Versionsnummer der App. werkzeuge/github-hochladen.mjs
+// setzt sie bei jedem Hochladen automatisch neu (aus einer Pruefsumme aller
+// Dateien). Weil sich damit sw.js aendert, merkt das iPhone beim naechsten
+// Start, dass es eine neue Fassung gibt, laedt sie im Hintergrund und die App
+// laedt sich einmal neu (siehe starteServiceWorker in js/app.js).
 
-const CACHE_NAME = 'mein-tag-v6';
+const CACHE_NAME = 'mein-tag-454b4c54e9';
 
 const DATEIEN = [
   './',
@@ -60,8 +63,13 @@ const DATEIEN = [
 
 // Installieren: alles in den Cache legen.
 self.addEventListener('install', (ereignis) => {
+  // cache: 'reload' holt jede Datei frisch vom Server. Sonst koennte der
+  // Browser eine bis zu 10 Minuten alte Kopie aus seinem eigenen Zwischenspeicher
+  // nehmen - und das Update waere nur halb angekommen.
   ereignis.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(DATEIEN)),
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => cache.addAll(DATEIEN.map((pfad) => new Request(pfad, { cache: 'reload' })))),
   );
   // Nicht auf das Schliessen alter Tabs warten.
   self.skipWaiting();
